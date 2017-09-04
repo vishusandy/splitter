@@ -6,3 +6,4 @@ authors = ["Andrew Prindle <prindle.andrew@gmail.com>"]
 [dependencies]
 argparse = "*"
 time = "0.1.*"
+regex = "0.2"

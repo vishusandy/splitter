@@ -1,6 +1,9 @@
 
 extern crate time;
 extern crate argparse;
+extern crate regex;
+
+
 use std::path::Path;
 
 use std::io::{BufReader, BufRead, BufWriter, Write, Read};
@@ -9,6 +12,7 @@ use std::prelude::*;
 use std::str;
 use std::time::Instant;
 use argparse::{ArgumentParser, Collect, StoreTrue, Store, StoreFalse};
+use regex::Regex;
 
 // deprecated
 fn is_sep(r: &str) -> bool {
@@ -51,17 +55,25 @@ fn main() {
     let contents = str::from_utf8(&b).unwrap();
     let mut files: Vec<&str> = Vec::new();
     
-    if !contents.contains(&sep) {
+    /*if !contents.contains(&sep) {
         panic!("Separator not found.");
     }
-    
+    */
     let mut text = &contents[..];
+    // let mut has_sep: bool = text.contains(&sep);
     
     
     
-    let mut has_sep: bool = text.contains(&sep);
     
     
+    let re = regex::Regex::new(&sep).unwrap();
+    for chunk in re.split(text) {
+        files.push(chunk);
+    }
+    if files.len() == 0 {
+        panic!("No chunks found");
+    }
+    println!("Found {} chunks", files.len());
     
     /*
     let find_chunks = |text: &str, list: Vec<&str>| -> Vec<&str> {
@@ -78,6 +90,7 @@ fn main() {
         }
     };*/
     
+    /*
     while has_sep == true {
         // let (chunk, txt) = text.split_at(text.find(&sep).unwrap());
         // text = txt;
@@ -89,7 +102,7 @@ fn main() {
         println!("found chunk");
         has_sep = text.contains(&sep);
     }
-    
+    */
     
     /*
     let mut pos = contents.find(&sep).unwrap();
@@ -125,12 +138,18 @@ fn main() {
     let file_name = path.file_stem().unwrap().to_str().unwrap();
     let file_ext = path.extension().unwrap().to_str().unwrap();
     
-    for chunk in &names {
+    for chunk in &files {
         let mut tmp: String;
         let cur_name: &str;
         if i < names.len() {
-            cur_name = &names[i];
-            if cur_name == "...." {
+            tmp = names[i].to_string();
+            if !&names[i].contains(".") {
+                tmp.push_str(".");
+                tmp.push_str(file_ext);
+            }
+            cur_name = tmp.as_str();
+            // cur_name = &names[i];
+            if cur_name == "..." {
                 i += 1;
                 continue; // skip writing this file to disk
             }
